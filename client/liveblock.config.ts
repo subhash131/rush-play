@@ -1,3 +1,5 @@
+import { LiveMap, LiveObject } from "@liveblocks/client";
+
 export type Player = {
   x: number;
   y: number;
@@ -13,11 +15,12 @@ declare global {
         x: number;
         y: number;
       } | null;
+      walletAddress: string | null;
     };
 
     // The Storage tree for the room, for useMutation, useStorage, etc.
     Storage: {
-      players: Player[];
+      players: LiveMap<string, LiveObject<Player>>;
     };
 
     UserMeta: {

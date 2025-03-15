@@ -6,6 +6,8 @@ import {
   RoomProvider,
   ClientSideSuspense,
 } from "@liveblocks/react/suspense";
+import { LiveMap, LiveObject } from "@liveblocks/client";
+import { Player } from "../../liveblock.config";
 
 export function Room({ children }: { children: ReactNode }) {
   return (
@@ -20,9 +22,10 @@ export function Room({ children }: { children: ReactNode }) {
         id="my-room"
         initialPresence={{
           cursor: null,
+          walletAddress: null,
         }}
         initialStorage={{
-          players: [{ x: 100, y: 100, size: 10, color: "red" }],
+          players: new LiveMap<string, LiveObject<Player>>(),
         }}
       >
         <ClientSideSuspense fallback={<div>Loading…</div>}>
