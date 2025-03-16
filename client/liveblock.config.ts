@@ -1,10 +1,16 @@
-import { LiveMap, LiveObject } from "@liveblocks/client";
+import { LiveList, LiveMap, LiveObject } from "@liveblocks/client";
 
 export type Player = {
   x: number;
   y: number;
   size: number;
   color: string;
+};
+export type Projectile = {
+  id: string;
+  x: number;
+  y: number;
+  velocity: { x: number; y: number };
 };
 
 declare global {
@@ -21,6 +27,8 @@ declare global {
     // The Storage tree for the room, for useMutation, useStorage, etc.
     Storage: {
       players: LiveMap<string, LiveObject<Player>>;
+      projectiles: LiveMap<string, LiveList<LiveObject<Projectile>>>;
+      canvas: { width: number; height: number };
     };
 
     UserMeta: {

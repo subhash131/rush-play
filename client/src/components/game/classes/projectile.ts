@@ -1,10 +1,11 @@
-export default class Projectile {
+export class Projectile {
   x: number;
   y: number;
   radius: number;
   color: string;
   c: CanvasRenderingContext2D;
   velocity: { x: number; y: number };
+  id: string;
 
   constructor({
     x,
@@ -13,11 +14,13 @@ export default class Projectile {
     color,
     velocity,
     ctx,
+    id,
   }: {
     x: number;
     y: number;
     radius: number;
     color: string;
+    id: string;
     velocity: { x: number; y: number };
     ctx: CanvasRenderingContext2D;
   }) {
@@ -27,6 +30,7 @@ export default class Projectile {
     this.color = color;
     this.velocity = velocity;
     this.c = ctx;
+    this.id = id;
   }
 
   draw() {
