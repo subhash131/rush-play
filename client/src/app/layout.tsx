@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { SonicProvider } from "../providers/sonic-provider";
+import { Toaster } from "sonner";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -26,11 +27,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <SonicProvider>{children}</SonicProvider>
-      </body>
+      <SonicProvider>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          {children}
+          <Toaster />
+        </body>
+      </SonicProvider>
     </html>
   );
 }

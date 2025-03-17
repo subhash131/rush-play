@@ -13,10 +13,6 @@ const PROJECTILE_SPEED = 5;
 
 const Canvas: React.FC = () => {
   const ref = useRef<HTMLCanvasElement>(null);
-
-  const backendPlayers = useStorage((root) => root.players);
-  const backendProjectiles = useStorage((root) => root.projectiles);
-
   const backendCanvas = useStorage((root) => root.canvas);
   const { publicKey } = useWallet();
 
@@ -26,6 +22,24 @@ const Canvas: React.FC = () => {
   const [frontendProjectiles, setFrontendProjectiles] = useState<
     Record<string, Projectile[]>
   >({});
+
+  const backendPlayers = useStorage((root) => root.players);
+  const backendProjectiles = useStorage((root) => root.projectiles);
+  const updateSize = useMutation(({ storage }, opponentId) => {
+    if (!publicKey) return;
+    const players = storage.get("players");
+    if (players) {
+      const opponent = players.get(opponentId);
+      const myObject = players.get(publicKey.toString());
+      if (opponent && myObject) {
+        const opponentSize = opponent.get("size");
+        if (opponentSize > 0) {
+          opponent.update({ size: opponentSize - 1 });
+          myObject.update({ size: myObject.get("size") + 1 });
+        }
+      }
+    }
+  }, []);
 
   const removeProjectile = useMutation(
     ({ storage }, userId: string, projectileId: string) => {
@@ -60,7 +74,7 @@ const Canvas: React.FC = () => {
       if (players) {
         const player = players.get(playerId);
         if (player) {
-          player.update(playerData); // Reverted to your original working version
+          player.update(playerData);
         }
       }
     },
@@ -192,6 +206,8 @@ const Canvas: React.FC = () => {
         newPlayers[id] = frontendPlayers[id];
         newPlayers[id].x = backendPlayer.x;
         newPlayers[id].y = backendPlayer.y;
+        newPlayers[id].radius =
+          backendPlayer.size * window.devicePixelRatio || 1;
       }
     });
 
@@ -317,6 +333,7 @@ const Canvas: React.FC = () => {
                   projectileId: projectile.id,
                 });
                 console.log("collided with opponent", id);
+                updateSize(id);
               }
             }
           }

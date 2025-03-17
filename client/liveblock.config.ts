@@ -5,6 +5,7 @@ export type Player = {
   y: number;
   size: number;
   color: string;
+  username: string;
 };
 export type Projectile = {
   id: string;

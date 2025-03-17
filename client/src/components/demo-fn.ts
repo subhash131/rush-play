@@ -1,6 +1,5 @@
 import { Program, AnchorProvider, web3, Idl } from "@project-serum/anchor";
-import idl from "@/utils/idl.json"; // Replace with your program's IDL
-import { PublicKey } from "@solana/web3.js";
+import idl from "@/utils/idl.json";
 
 const provider = new AnchorProvider(
   new web3.Connection("https://api.testnet.sonic.game/"),
@@ -21,7 +20,7 @@ export async function callContract() {
   console.log(JSON.stringify(res, null, 2));
 }
 export async function updateContract() {
-  const wallet = window.solana; // Ensure wallet is available
+  const wallet = window.solana;
 
   if (!wallet || !wallet.publicKey) {
     console.error("Wallet not connected");
