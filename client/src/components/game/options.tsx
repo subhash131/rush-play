@@ -142,6 +142,7 @@ const Options = () => {
                         className="bg-transparent px-2 py-1 outline-none border rounded-lg border-[#3E4144]"
                         value={lamports}
                         onChange={(e) => setLamports(Number(e.target.value))}
+                        type="number"
                       />
                       SOL
                     </div>
