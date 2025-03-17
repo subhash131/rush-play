@@ -52,6 +52,7 @@ const Options = () => {
         setUsername(res?.username);
       })();
     }
+    return () => removePlayer(wallet.publicKey?.toString());
   }, [wallet.publicKey, loading]);
 
   return (
@@ -183,48 +184,6 @@ const Options = () => {
         </div>
         <LeaderBoard gameActive={gameActive} setGameActive={setGameActive} />
       </div>
-
-      {/* {wallet?.publicKey && (
-        <div className="flex size-full items-start flex-row-reverse pr-10">
-          <div className="size-full bg--100 flex items-center justify-center gap-10">
-            <button onClick={() => removePlayer(wallet.publicKey!.toString())}>
-              Remove user
-            </button>
-            <button
-              
-            >
-              Init user
-            </button>
-            <div className="flex gap-2 flex-col">
-              <input
-                ref={inputRef}
-                placeholder="lamports"
-                className="outline-none px-2 py-1 text-black "
-                type="number"
-              />
-              <button
-                onClick={() => {
-                  
-                }}
-                className="px-4 py-2 bg-white text-black"
-              >
-                Add funds {funds}
-              </button>
-            </div>
-            {!username && (
-              <button
-                onClick={() => {
-                 
-                }}
-                className="px-4 py-2 bg-white text-black"
-              >
-                Add User
-              </button>
-            )}
-            {username}
-          </div>
-        </div>
-      )} */}
     </div>
   );
 };
