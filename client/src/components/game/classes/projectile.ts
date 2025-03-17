@@ -5,7 +5,7 @@ export class Projectile {
   color: string;
   c: CanvasRenderingContext2D;
   velocity: { x: number; y: number };
-  id: string;
+  id: any;
 
   constructor({
     x,

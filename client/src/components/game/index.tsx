@@ -13,17 +13,6 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import Canvas from "./canvas";
 import { stringToColor } from "@/utils/string-to-color";
 
-const COLORS = [
-  "#E57373",
-  "#9575CD",
-  "#4FC3F7",
-  "#81C784",
-  "#FFF176",
-  "#FF8A65",
-  "#F06292",
-  "#7986CB",
-];
-
 export function Game() {
   const others = useOthers();
   const [{ cursor }, updateMyPresence] = useMyPresence();
@@ -69,7 +58,7 @@ export function Game() {
 
   return (
     <div
-      className="size-full bg-teal-700 h-screen"
+      className="size-full relative"
       onPointerMove={(e) => {
         updateMyPresence({
           cursor: {
@@ -84,24 +73,11 @@ export function Game() {
         })
       }
     >
-      <button onClick={() => connect()}>
-        {publicKey ? publicKey.toString() : "connect"}
-      </button>
-      {others.map(({ connectionId, presence }) => {
-        if (!presence?.cursor) {
-          return null;
-        }
-        return (
-          <Cursor
-            key={`cursor-${connectionId}`}
-            color={stringToColor({ input: presence.walletAddress || "" })}
-            x={presence.cursor.x}
-            y={presence.cursor.y}
-          />
-        );
-      })}
       <Canvas />
-      <div className="flex gap-20">
+      <div className="flex gap-20 absolute z-50 pointer-events-none top-0 left-0 size-full">
+        <button onClick={() => connect()}>
+          {publicKey ? publicKey.toString() : "connect"}
+        </button>
         <button onClick={() => removePlayer(publicKey!.toString())}>
           Remove user
         </button>
