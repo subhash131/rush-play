@@ -1,66 +1,211 @@
-use anchor_lang::prelude::*;
+use anchor_lang::{
+    prelude::*,
+    solana_program::{program::invoke, system_instruction::transfer},
+};
 
-declare_id!("1nqMq35onAx5F9uUzbq8PptHeBXDski8EC6M7gXN66e");
+mod constants;
+mod errors;
+mod state;
+use crate::{constants::*, errors::ErrorCode, state::*};
+
+declare_id!("Eq8DnEtutnm4snJtPR8AUho6Jtzk5WkxW6NF2HgeaUCX");
 
 #[program]
-pub mod solana_counter {
+pub mod sonic_hunt {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        let counter = &mut ctx.accounts.counter;
-        counter.count = 0;
-        msg!("Counter initialized with value: {}", counter.count);
+    pub fn init_master(ctx: Context<InitMaster>) -> Result<()> {
+        let master = &mut ctx.accounts.master;
+        let authority = &ctx.accounts.authority;
+        master.owner = authority.key();
         Ok(())
     }
 
-    pub fn increment(ctx: Context<Increment>) -> Result<()> {
-        let counter = &mut ctx.accounts.counter;
-        // Check for overflow
-        counter.count = counter.count.checked_add(1).ok_or(ProgramError::ArithmeticOverflow)?;
-        msg!("Counter incremented to: {}", counter.count);
+    pub fn add_user(ctx: Context<AddUser>, username: String) -> Result<()> {
+        let user = &mut ctx.accounts.user;
+
+        user.username = username;
+        user.authority = ctx.accounts.authority.key();
+        user.funds = 0;
+
+        msg!("New user added: {}!", user.username);
         Ok(())
     }
+
+    pub fn add_funds(ctx: Context<AddFunds>, funds: u64) -> Result<()> {
+        let user = &mut ctx.accounts.user;
+        let master = &ctx.accounts.master;
+        let authority = &ctx.accounts.authority;
+
+        // Transfer SOL from authority to master.owner
+        invoke(
+            &transfer(&authority.key(), &master.owner, funds),
+            &[
+                authority.to_account_info(),
+                ctx.accounts.owner.to_account_info(),
+                ctx.accounts.system_program.to_account_info(),
+            ],
+        )?;
+
+        user.funds += funds;
+        msg!("Funds added successfully!");
+        Ok(())
+    }
+
+    pub fn withdraw_funds(
+        ctx: Context<WithdrawFunds>,
+        amount: u64,
+        _user_address: Pubkey,
+    ) -> Result<()> {
+        let user = &mut ctx.accounts.user;
+        let authority = &ctx.accounts.authority;
+        let withdrawer = &ctx.accounts.withdrawer;
+
+        // Check if user has enough funds to withdraw
+        if user.funds < amount {
+            return err!(ErrorCode::InsufficientFunds);
+        }
+
+        // Transfer SOL from master.owner to authority
+        invoke(
+            &transfer(&authority.key(), &withdrawer.key(), amount),
+            &[
+                authority.to_account_info(),
+                withdrawer.to_account_info(),
+                ctx.accounts.system_program.to_account_info(),
+            ],
+        )?;
+
+        // Update user's funds
+        user.funds -= amount;
+        msg!("Funds withdrawn successfully: {} lamports", amount);
+        Ok(())
+    }
+
+    pub fn update_results(
+        ctx: Context<UpdateResults>,
+        value: i64,
+        _user_address: Pubkey,
+    ) -> Result<()> {
+        let user = &mut ctx.accounts.user;
+
+        if value >= 0 {
+            user.funds = user.funds.saturating_add(value as u64);
+        } else {
+            let abs_value = (-value) as u64;
+            user.funds = user.funds.saturating_sub(abs_value);
+        }
+
+        msg!("Funds updated successfully: {}", user.funds);
+        Ok(())
+    }
+
 }
 
-// Account structures with proper documentation
 #[derive(Accounts)]
-#[instruction()]
-pub struct Initialize<'info> {
-    /// The counter account to initialize
+pub struct InitMaster<'info> {
     #[account(
         init,
-        payer = user,
-        space = 8 + 8, // discriminator (8) + count (u64 = 8)
-        seeds = [b"counter"],
-        bump
+        seeds = [MASTER_SEED.as_bytes()],
+        bump,
+        payer = authority,
+        space = 8 + std::mem::size_of::<Master>(),
     )]
-    pub counter: Account<'info, Counter>,
-    
-    /// The user initializing the counter and paying for the account creation
+    pub master: Account<'info, Master>,
+
     #[account(mut)]
-    pub user: Signer<'info>,
-    
-    /// System program for account creation
+    pub authority: Signer<'info>,
+
     pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
-pub struct Increment<'info> {
-    /// The counter account to increment
+pub struct AddUser<'info> {
+    #[account(
+        init,
+        payer = authority,
+        space = 8 + std::mem::size_of::<User>(),
+        seeds = [USER_SEED.as_bytes(), authority.key().as_ref()],
+        bump
+    )]
+    pub user: Account<'info, User>,
+
     #[account(mut)]
-    pub counter: Account<'info, Counter>,
+    pub authority: Signer<'info>,
+
+    pub system_program: Program<'info, System>,
 }
 
-/// Data structure for the counter account
-#[account]
-#[derive(Default)]
-pub struct Counter {
-    pub count: u64,
+#[derive(Accounts)]
+#[instruction(funds: u64)]
+pub struct AddFunds<'info> {
+    #[account(
+        mut,
+        seeds = [USER_SEED.as_bytes(), authority.key().as_ref()],
+        bump,
+    )]
+    pub user: Account<'info, User>,
+
+    #[account(
+        seeds = [MASTER_SEED.as_bytes()],
+        bump,
+    )]
+    pub master: Account<'info, Master>,
+
+    #[account(mut)]
+    pub authority: Signer<'info>,
+
+    #[account(mut, address = master.owner)]
+    pub owner: SystemAccount<'info>,
+
+    pub system_program: Program<'info, System>,
 }
 
-// Custom errors
-#[error_code]
-pub enum ProgramError {
-    #[msg("Arithmetic overflow occurred")]
-    ArithmeticOverflow,
+#[derive(Accounts)]
+#[instruction(amount: u64, user_address:Pubkey)]
+pub struct WithdrawFunds<'info> {
+    #[account(
+        mut,
+        seeds = [USER_SEED.as_bytes(), user_address.key().as_ref()],
+        bump,
+        constraint = master.owner == authority.key() @ ErrorCode::Unauthorized,
+    )]
+    pub user: Account<'info, User>,
+
+    #[account(
+        seeds = [MASTER_SEED.as_bytes()],
+        bump,
+    )]
+    pub master: Account<'info, Master>,
+
+    #[account(mut)]
+    pub authority: Signer<'info>,
+
+    #[account(mut, address = user_address)]
+    pub withdrawer: SystemAccount<'info>,
+
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+#[instruction(value: i64, user_address:Pubkey)]
+pub struct UpdateResults<'info> {
+    #[account(
+        mut,
+        seeds = [USER_SEED.as_bytes(), user_address.key().as_ref()],
+        bump,
+        constraint = master.owner == authority.key() @ ErrorCode::Unauthorized,
+    )]
+    pub user: Account<'info, User>,
+
+    #[account(
+        seeds = [MASTER_SEED.as_bytes()],
+        bump,
+    )]
+    pub master: Account<'info, Master>,
+
+    #[account(mut)]
+    pub authority: Signer<'info>,
+
+    pub system_program: Program<'info, System>,
 }
