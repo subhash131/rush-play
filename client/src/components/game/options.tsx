@@ -136,7 +136,7 @@ const Options = () => {
                   <div className="w-96 h-fit pb-6 gap-2 flex flex-col bg-[#212428] p-1 rounded-lg text-white">
                     <div className="h-12 flex items-center justify-center font-semibold flex-col ">
                       <p>
-                        Add Funds
+                        Hi {username}, Add Funds
                         <span className="text-xs text-gray-400 font-normal">
                           ( bal {funds} SOL)
                         </span>
