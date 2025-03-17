@@ -1,7 +1,6 @@
 "use client";
 import { getMasterAddress, getUserAddress } from "@/utils/program";
-import { AnchorProvider, BN, Idl, Program, web3 } from "@project-serum/anchor";
-import { PublicKey, SystemProgram } from "@solana/web3.js";
+import { AnchorProvider, BN, Idl, Program,  } from "@project-serum/anchor";
 
 import idl from "@/utils/idl.json";
 import { PROGRAM_ID } from "@/utils/constants";

@@ -106,6 +106,14 @@ const Options = () => {
                   <button
                     className="px-4 py-1 rounded-lg bg-[#404143] active:scale-95 transition-transform"
                     onClick={() => {
+                      if (!funds) {
+                        toast.error("Add more funds to play");
+                        return;
+                      }
+                      if (!username) {
+                        toast.error("Register to play");
+                        return;
+                      }
                       initPlayer(wallet.publicKey!.toString(), {
                         color,
                         size: funds * 100,

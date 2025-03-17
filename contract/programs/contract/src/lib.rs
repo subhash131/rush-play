@@ -8,7 +8,7 @@ mod errors;
 mod state;
 use crate::{constants::*, errors::ErrorCode, state::*};
 
-declare_id!("Eq8DnEtutnm4snJtPR8AUho6Jtzk5WkxW6NF2HgeaUCX");
+declare_id!("AzwBC7AzqaU8YDqEcyHBjBi86VG8xHSYYJDFtiR2m5jF");
 
 #[program]
 pub mod sonic_hunt {

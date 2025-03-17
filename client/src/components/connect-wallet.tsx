@@ -1,14 +1,13 @@
 "use client";
 
 import { Program, AnchorProvider, web3, Idl } from "@project-serum/anchor";
-import { useAnchorWallet, useWallet } from "@solana/wallet-adapter-react";
+import { useAnchorWallet } from "@solana/wallet-adapter-react";
 import idl from "@/utils/idl.json"; // Your IDL file
 import { Connection } from "@solana/web3.js";
+import { PROGRAM_ID } from "@/utils/constants";
 
 const SONIC_RPC_URL = "https://api.testnet.sonic.game/";
-const PROGRAM_ID = new web3.PublicKey(
-  "Eq8DnEtutnm4snJtPR8AUho6Jtzk5WkxW6NF2HgeaUCX"
-); // Replace with your program ID
+// const PROGRAM_ID = new web3.PublicKey(PROGRAM_ID); // Replace with your program ID
 
 export default function UpdateContractButton() {
   const wallet = useAnchorWallet(); // Get connected wallet
@@ -19,11 +18,9 @@ export default function UpdateContractButton() {
       return;
     }
 
-    const provider = new AnchorProvider(
-      new Connection("https://api.testnet.sonic.game/"),
-      wallet,
-      { preflightCommitment: "confirmed" }
-    );
+    const provider = new AnchorProvider(new Connection(SONIC_RPC_URL), wallet, {
+      preflightCommitment: "confirmed",
+    });
 
     const program = new Program(idl as Idl, PROGRAM_ID, provider);
 

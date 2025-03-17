@@ -1,16 +1,10 @@
-import {
-  Connection,
-  PublicKey,
-  Transaction,
-  SystemProgram,
-} from "@solana/web3.js";
+import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 import { useWallet } from "@solana/wallet-adapter-react";
+import { PROGRAM_ID } from "@/utils/constants";
 
 const SONIC_RPC_URL = "https://api.testnet.sonic.game/";
-const PROGRAM_ID = new PublicKey(
-  "Eq8DnEtutnm4snJtPR8AUho6Jtzk5WkxW6NF2HgeaUCX"
-); // Replace with actual program ID
-const ACCOUNT_TO_UPDATE = new PublicKey("Account_To_Update"); // Replace with the target account
+
+const ACCOUNT_TO_UPDATE = new PublicKey("Account_To_Update");
 
 export default function CallSmartContract() {
   const { publicKey, sendTransaction } = useWallet();
@@ -29,8 +23,8 @@ export default function CallSmartContract() {
         { pubkey: publicKey, isSigner: true, isWritable: true },
         { pubkey: ACCOUNT_TO_UPDATE, isSigner: false, isWritable: true },
       ],
-      programId: PROGRAM_ID,
-      data: Buffer.from([42]),  
+      programId: new PublicKey(PROGRAM_ID),
+      data: Buffer.from([42]),
     });
 
     try {

@@ -1,5 +1,6 @@
 import { Program, AnchorProvider, web3, Idl } from "@project-serum/anchor";
 import idl from "@/utils/idl.json";
+import { PROGRAM_ID } from "@/utils/constants";
 
 const provider = new AnchorProvider(
   new web3.Connection("https://api.testnet.sonic.game/"),
@@ -7,11 +8,7 @@ const provider = new AnchorProvider(
   { preflightCommitment: "processed" }
 );
 
-const program = new Program(
-  idl as Idl,
-  "Eq8DnEtutnm4snJtPR8AUho6Jtzk5WkxW6NF2HgeaUCX",
-  provider
-);
+const program = new Program(idl as Idl, PROGRAM_ID, provider);
 
 export async function callContract() {
   const res = await program.account.user.fetch(
