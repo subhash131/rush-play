@@ -55,7 +55,12 @@ const Options = () => {
   }, [wallet.publicKey, loading]);
 
   return (
-    <div className="flex absolute z-50 top-0 left-0 size-full w-screen overflow-hidden p-2 flex-col select-none">
+    <div
+      className="flex absolute z-50 top-0 left-0 size-full w-screen overflow-hidden p-2 flex-col select-none"
+      onClick={(e) => {
+        if (!gameActive) e.stopPropagation();
+      }}
+    >
       <div className="w-full px-10 flex items- justify-end h-fit gap-10">
         <WalletMultiButton />
       </div>
