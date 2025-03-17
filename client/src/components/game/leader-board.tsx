@@ -11,6 +11,8 @@ const LeaderBoard = ({
 }) => {
   const data = useStorage((root) => root.players);
 
+  if (!gameActive) return <></>;
+
   return (
     <div className="w-fit h-full flex flex-col gap-10">
       <div className="pointer-events-none pl-10">
