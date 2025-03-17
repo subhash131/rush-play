@@ -13,7 +13,7 @@ export function Room({ children }: { children: ReactNode }) {
   return (
     <LiveblocksProvider
       publicApiKey={
-        "pk_dev_tOHyssM6RdPFlhKg0keB8_XciJpQfJj-riMw7Ja4DY3OUEQjTaXZMAL0ftESqWGG"
+        "pk_dev_St_cOy9aSHjB1qM5rEb4lLWnoL5hAHpOZMfDYn3ngPGBAtAmc8MEvQ5THjAyB5fR"
       }
       throttle={16}
       preventUnsavedChanges
