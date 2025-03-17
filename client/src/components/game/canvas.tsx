@@ -25,21 +25,24 @@ const Canvas: React.FC = () => {
 
   const backendPlayers = useStorage((root) => root.players);
   const backendProjectiles = useStorage((root) => root.projectiles);
-  const updateSize = useMutation(({ storage }, opponentId) => {
-    if (!publicKey) return;
-    const players = storage.get("players");
-    if (players) {
-      const opponent = players.get(opponentId);
-      const myObject = players.get(publicKey.toString());
-      if (opponent && myObject) {
-        const opponentSize = opponent.get("size");
-        if (opponentSize > 0) {
-          opponent.update({ size: opponentSize - 1 });
-          myObject.update({ size: myObject.get("size") + 1 });
+  const updateSize = useMutation(
+    ({ storage }, opponentId) => {
+      if (!publicKey) return;
+      const players = storage.get("players");
+      if (players) {
+        const opponent = players.get(opponentId);
+        const myObject = players.get(publicKey.toString());
+        if (opponent && myObject) {
+          const opponentSize = opponent.get("size");
+          if (opponentSize > 0) {
+            opponent.update({ size: opponentSize - 1 });
+            myObject.update({ size: myObject.get("size") + 1 });
+          }
         }
       }
-    }
-  }, []);
+    },
+    [backendPlayers]
+  );
 
   const removeProjectile = useMutation(
     ({ storage }, userId: string, projectileId: string) => {
